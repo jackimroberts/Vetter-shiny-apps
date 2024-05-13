@@ -9,20 +9,23 @@ library(RColorBrewer)
 library(ggrepel)
 
 #navigate to the directory that contains the datasets:
-setwd(paste0(dirname(getwd()),"/dataexplorer"))
-ja2<-readRDS(file="vetterdata/jarid2_P0_n2.RDS") %>% ungroup()
-ja3<-readRDS(file="vetterdata/jarid2_P0_n3.RDS") %>% ungroup()
+#ja2<-readRDS(file="vetterdata/jarid2_P0_n2.RDS") %>% ungroup()
+#ja3<-readRDS(file="vetterdata/jarid2_P0_n3.RDS") %>% ungroup()
+if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
+  GEOquery::getGEOSuppFiles(GSE65082, makeDirectory = F, baseDir = getwd(),fetch_files = TRUE, filter_regex = NULL)
+  x<-read_tsv(gzfile("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz"))[,-c(5:12)] %>% 
+    mutate(con_mean=ave("Pax6alpha-Cre:Ezh2fl/null_1_FPKM","Pax6alpha-Cre:Ezh2fl/null_2_FPKM","Pax6alpha-Cre:Ezh2fl/null_3_FPKM","Pax6alpha-Cre:Ezh2fl/null_4_FPKM"),
+           con_sem cko_mean cko_sem)}
+if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
+  GEOquery::getGEOSuppFiles("GSE202734", makeDirectory = F, baseDir = getwd(),fetch_files = F,filter_regex = "tsv.gz")}
 ezh<-readRDS(file="vetterdata/ezh2_e16.RDS") %>% ungroup()
-je16<-readRDS(file="vetterdata/jarid2_e16.RDS") %>% ungroup()
-scj2<-readRDS(file="vetterdata/scJarid2 v2.rds")
-clark<-readRDS(file="otherdata/clark_minimal_data.rds")
-ctx<-read_tsv("Roberts/jarid2 edgeR results.txt")
+#je16<-readRDS(file="vetterdata/jarid2_e16.RDS") %>% ungroup()
+#scj2<-readRDS(file="vetterdata/scJarid2 v2.rds")
+#ctx<-read_tsv("Roberts/jarid2 edgeR results.txt")
 
-pal<-c("#ede9cf","#dbe7c0","#c1e3b8","#a3dcb5","#81d3b7","#60c8bc","#48bac2","#45a9c5","#5895c5","#707ebf","#8464b2","#91489d","#942a81")
 j2pal<-brewer.pal(11,"Spectral")
-scj2pal <- c("seagreen","yellow2","darkorange","darkorchid4","chartreuse3","midnightblue","maroon3","grey90","grey20")
-clarkpal<-c("darkorange","red","chartreuse3","seagreen","skyblue","black","yellow2","maroon3","navy","darkorchid4")
 
+scj2pal <- c("seagreen","yellow2","darkorange","darkorchid4","chartreuse3","midnightblue","maroon3","grey90","grey20")
 shinyServer(function(input, output) {
   
   #print dataset selection at the top of the page ####
@@ -42,7 +45,7 @@ shinyServer(function(input, output) {
     else if (input$dataset==5){HTML("Jarid2 conditional knockout. Single cell RNA-seq results from e18 whole retina.")}
   })
   
-  #plot function three replicates ####
+  #plot function for all replicates represented as individual bars. No significance plotted
   bar_rep<-function(table="scrry2",title="sequencing round 2",replicates=3)({
     
     if(table=="scrry2"){dat<-scrry[scrry$name==input$goi,]
@@ -84,6 +87,7 @@ shinyServer(function(input, output) {
             axis.title.y=element_text(size=16))
   })
 
+  #plots two conditions (FPKM) error bars (+-) and asterisk for significance
   bar_2cond<-function(file="ja2")({
     
     #return the appropriate asterisk for signifigance
@@ -149,13 +153,15 @@ shinyServer(function(input, output) {
       {if(mytable[1,4]<=0.05)scale_y_continuous(limits=c(0,max(rowSums(mytable[,2:3]))*1.1))}+
       {if(mytable[1,4]<=0.05)geom_signif(stat="identity",data=data.frame(x=1, xend=2,y=max(rowSums(mytable[,2:3]))*1.05,annotation=star()),aes(x=x,xend=xend, y=y, yend=y, annotation=annotation))}
   })
-
+ 
+  #returns asterisks based on significance values
   star<-function(q=mytable[1,4]){
     if(!q<=0.05){return("NS")}
     else if(q<=0.001){return("***")}
     else if(q<=0.01){return("**")}
     else{return("*")}
   }  
+  
   #bar function specifically for the edgeR results. Two conditions with only one sample each.
   bar_2<-function(dds=ctx,counts_type="counts", #specific edge R dataset
                   title="in cortex",order=c("con","cko"),pal=c("#cc2a49","#f99e4c"))({ 
@@ -195,25 +201,25 @@ shinyServer(function(input, output) {
   #generate boxes for gene tab depending on selected dataset ####
   output$geneboxes<-renderUI({
      if (input$dataset==4){
-      output$plot6<-renderPlot({bar_2cond("je16")})
-      output$plot1<-renderPlot({bar_2cond()})
-      output$plot2<-renderPlot({bar_2cond("ja3")})
+      #output$plot6<-renderPlot({bar_2cond("je16")})
+      #output$plot1<-renderPlot({bar_2cond()})
+      #output$plot2<-renderPlot({bar_2cond("ja3")})
       output$plot3<-renderPlot({bar_2cond("ezh")})
-      output$plot7<-renderPlot({bar_rep("je16",title="e16.5")})
-      output$plot4<-renderPlot({bar_rep("ja3",title="P0")})
+      #output$plot7<-renderPlot({bar_rep("je16",title="e16.5")})
+      #output$plot4<-renderPlot({bar_rep("ja3",title="P0")})
       output$plot5<-renderPlot({bar_rep("ezh",title="e16.5",replicates=4)})
-      output$plot8<-renderPlot({bar_2()}) #cortex data
-      output$plot9<-renderPlot({volcano_gene()}) #cortex data
+      #output$plot8<-renderPlot({bar_2()}) #cortex data
+      #output$plot9<-renderPlot({volcano_gene()}) #cortex data
       fluidRow(
         {if (input$goi %in% ezh$name)box(plotOutput("plot3"),width=3)},#ezh2
-        {if (input$goi %in% je16$name)box(plotOutput("plot6"),width=3)},#j2 e16        
-        {if (input$goi %in% ja2$name)box(plotOutput("plot1"),width=3)},#j2 p0
-        {if (input$goi %in% ctx$gene)box(plotOutput("plot8"),width=3)},#j2 ctx
+        #{if (input$goi %in% je16$name)box(plotOutput("plot6"),width=3)},#j2 e16        
+        #{if (input$goi %in% ja2$name)box(plotOutput("plot1"),width=3)},#j2 p0
+        #{if (input$goi %in% ctx$gene)box(plotOutput("plot8"),width=3)},#j2 ctx
         {if (input$goi %in% ezh$name)box(plotOutput("plot5"),width=3)},
-        {if (input$goi %in% je16$name)box(plotOutput("plot7"),width=3)},
-        {if (input$goi %in% ja3$name)box(plotOutput("plot4"),width=3)},
-        {if (input$goi %in% ctx$gene)box(plotOutput("plot9"),width=3)},
-        {if (input$goi %in% ja3$name)box(plotOutput("plot2"),width=4)}
+        #{if (input$goi %in% je16$name)box(plotOutput("plot7"),width=3)},
+        #{if (input$goi %in% ja3$name)box(plotOutput("plot4"),width=3)},
+        #{if (input$goi %in% ctx$gene)box(plotOutput("plot9"),width=3)},
+        #{if (input$goi %in% ja3$name)box(plotOutput("plot2"),width=4)}
       )
     }
     else if (input$dataset==5 & (input$goi%in%(c(rownames(scj2@assays$RNA@data),names(scj2@meta.data))))){
