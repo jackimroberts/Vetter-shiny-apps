@@ -8,17 +8,18 @@ library(tidyverse)
 library(RColorBrewer)
 library(ggrepel)
 
+
 #navigate to the directory that contains the datasets:
 #ja2<-readRDS(file="vetterdata/jarid2_P0_n2.RDS") %>% ungroup()
 #ja3<-readRDS(file="vetterdata/jarid2_P0_n3.RDS") %>% ungroup()
-if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
-  GEOquery::getGEOSuppFiles(GSE65082, makeDirectory = F, baseDir = getwd(),fetch_files = TRUE, filter_regex = NULL)
-  x<-read_tsv(gzfile("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz"))[,-c(5:12)] %>% 
-    mutate(con_mean=ave("Pax6alpha-Cre:Ezh2fl/null_1_FPKM","Pax6alpha-Cre:Ezh2fl/null_2_FPKM","Pax6alpha-Cre:Ezh2fl/null_3_FPKM","Pax6alpha-Cre:Ezh2fl/null_4_FPKM"),
-           con_sem cko_mean cko_sem)}
-if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
-  GEOquery::getGEOSuppFiles("GSE202734", makeDirectory = F, baseDir = getwd(),fetch_files = F,filter_regex = "tsv.gz")}
-ezh<-readRDS(file="vetterdata/ezh2_e16.RDS") %>% ungroup()
+#if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
+#  GEOquery::getGEOSuppFiles(GSE65082, makeDirectory = F, baseDir = getwd(),fetch_files = TRUE, filter_regex = NULL)
+#  x<-read_tsv(gzfile("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz"))[,-c(5:12)] %>% 
+#    mutate(con_mean=ave("Pax6alpha-Cre:Ezh2fl/null_1_FPKM","Pax6alpha-Cre:Ezh2fl/null_2_FPKM","Pax6alpha-Cre:Ezh2fl/null_3_FPKM","Pax6alpha-Cre:Ezh2fl/null_4_FPKM"),
+#           con_sem cko_mean cko_sem)}
+#if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
+#  GEOquery::getGEOSuppFiles("GSE202734", makeDirectory = F, baseDir = getwd(),fetch_files = F,filter_regex = "tsv.gz")}
+ezh<-readRDS(file.path("../data/ezh2_e16.RDS")) %>% ungroup()
 #je16<-readRDS(file="vetterdata/jarid2_e16.RDS") %>% ungroup()
 #scj2<-readRDS(file="vetterdata/scJarid2 v2.rds")
 #ctx<-read_tsv("Roberts/jarid2 edgeR results.txt")
