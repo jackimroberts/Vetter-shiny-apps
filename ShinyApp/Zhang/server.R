@@ -7,25 +7,17 @@ library(DT)
 library(tidyverse)
 library(RColorBrewer)
 library(ggrepel)
-
+library(qs)
 
 #navigate to the directory that contains the datasets:
-#ja2<-readRDS(file="vetterdata/jarid2_P0_n2.RDS") %>% ungroup()
-#ja3<-readRDS(file="vetterdata/jarid2_P0_n3.RDS") %>% ungroup()
-#if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
-#  GEOquery::getGEOSuppFiles(GSE65082, makeDirectory = F, baseDir = getwd(),fetch_files = TRUE, filter_regex = NULL)
-#  x<-read_tsv(gzfile("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz"))[,-c(5:12)] %>% 
-#    mutate(con_mean=ave("Pax6alpha-Cre:Ezh2fl/null_1_FPKM","Pax6alpha-Cre:Ezh2fl/null_2_FPKM","Pax6alpha-Cre:Ezh2fl/null_3_FPKM","Pax6alpha-Cre:Ezh2fl/null_4_FPKM"),
-#           con_sem cko_mean cko_sem)}
-#if(!exists("GSE65082_Ezh2flnull_vs_Ezh2fl+.txt.gz")){
-#  GEOquery::getGEOSuppFiles("GSE202734", makeDirectory = F, baseDir = getwd(),fetch_files = F,filter_regex = "tsv.gz")}
-ezh<-readRDS(file.path("../data/ezh2_e16.RDS")) %>% ungroup()
-#je16<-readRDS(file="vetterdata/jarid2_e16.RDS") %>% ungroup()
-#scj2<-readRDS(file="vetterdata/scJarid2 v2.rds")
-#ctx<-read_tsv("Roberts/jarid2 edgeR results.txt")
+ja2<-qread("../data/jarid2_P0_n2.qs")
+ja3<-qread("../data/jarid2_P0_n3.qs")
+ezh<-qread("../data/ezh2_e16.qs")
+je16<-qread("../data/jarid2_e16.qs")
+scj2<-qread("../data/scJarid2mini.qs")
+ctx<-qread("../data/jarid2 edgeR results.qs")
 
 j2pal<-brewer.pal(11,"Spectral")
-
 scj2pal <- c("seagreen","yellow2","darkorange","darkorchid4","chartreuse3","midnightblue","maroon3","grey90","grey20")
 shinyServer(function(input, output) {
   
@@ -43,7 +35,8 @@ shinyServer(function(input, output) {
                                of Jarid2 fl/fl;Emx1 cre/+ (cKO) and Jarid2 +/+;Emx1 cre/+ (control) at E15.5, targeting the
                                S1 cortical region. E15.5 would be considered a late cortical progenitor stage. 
                                Differential expression analysis done with EdgeR.")}
-    else if (input$dataset==5){HTML("Jarid2 conditional knockout. Single cell RNA-seq results from e18 whole retina.")}
+    else if (input$dataset==5){HTML("Jarid2 conditional knockout. Single cell RNA-seq results from e18 whole retina. \n 
+                                    These plots are not show RNA data and represent only half of the cells to save file space")}
   })
   
   #plot function for all replicates represented as individual bars. No significance plotted
@@ -202,31 +195,31 @@ shinyServer(function(input, output) {
   #generate boxes for gene tab depending on selected dataset ####
   output$geneboxes<-renderUI({
      if (input$dataset==4){
-      #output$plot6<-renderPlot({bar_2cond("je16")})
-      #output$plot1<-renderPlot({bar_2cond()})
-      #output$plot2<-renderPlot({bar_2cond("ja3")})
+      output$plot6<-renderPlot({bar_2cond("je16")})
+      output$plot1<-renderPlot({bar_2cond()})
+      output$plot2<-renderPlot({bar_2cond("ja3")})
       output$plot3<-renderPlot({bar_2cond("ezh")})
-      #output$plot7<-renderPlot({bar_rep("je16",title="e16.5")})
-      #output$plot4<-renderPlot({bar_rep("ja3",title="P0")})
+      output$plot7<-renderPlot({bar_rep("je16",title="e16.5")})
+      output$plot4<-renderPlot({bar_rep("ja3",title="P0")})
       output$plot5<-renderPlot({bar_rep("ezh",title="e16.5",replicates=4)})
-      #output$plot8<-renderPlot({bar_2()}) #cortex data
-      #output$plot9<-renderPlot({volcano_gene()}) #cortex data
+      output$plot8<-renderPlot({bar_2()}) #cortex data
+      output$plot9<-renderPlot({volcano_gene()}) #cortex data
       fluidRow(
         {if (input$goi %in% ezh$name)box(plotOutput("plot3"),width=3)},#ezh2
-        #{if (input$goi %in% je16$name)box(plotOutput("plot6"),width=3)},#j2 e16        
-        #{if (input$goi %in% ja2$name)box(plotOutput("plot1"),width=3)},#j2 p0
-        #{if (input$goi %in% ctx$gene)box(plotOutput("plot8"),width=3)},#j2 ctx
+        {if (input$goi %in% je16$name)box(plotOutput("plot6"),width=3)},#j2 e16        
+        {if (input$goi %in% ja2$name)box(plotOutput("plot1"),width=3)},#j2 p0
+        {if (input$goi %in% ctx$gene)box(plotOutput("plot8"),width=3)},#j2 ctx
         {if (input$goi %in% ezh$name)box(plotOutput("plot5"),width=3)},
-        #{if (input$goi %in% je16$name)box(plotOutput("plot7"),width=3)},
-        #{if (input$goi %in% ja3$name)box(plotOutput("plot4"),width=3)},
-        #{if (input$goi %in% ctx$gene)box(plotOutput("plot9"),width=3)},
-        #{if (input$goi %in% ja3$name)box(plotOutput("plot2"),width=4)}
+        {if (input$goi %in% je16$name)box(plotOutput("plot7"),width=3)},
+        {if (input$goi %in% ja3$name)box(plotOutput("plot4"),width=3)},
+        {if (input$goi %in% ctx$gene)box(plotOutput("plot9"),width=3)},
+        {if (input$goi %in% ja3$name)box(plotOutput("plot2"),width=4)}
       )
     }
-    else if (input$dataset==5 & (input$goi%in%(c(rownames(scj2@assays$RNA@data),names(scj2@meta.data))))){
+    else if (input$dataset==5 & (input$goi%in%(c(rownames(scj2@assays$SCT@data),names(scj2@meta.data))))){
       output$clust<-renderPlot({DimPlot(scj2, label = TRUE,cols=scj2pal) + NoLegend()})
-      output$con<-renderPlot({FeaturePlot(object = scj2,input$goi, cols=c(pal),pt.size=1.5,cells= grep("con", Cells(scj2))) + NoLegend()})
-      output$cko<-renderPlot({FeaturePlot(object = scj2,input$goi, cols=c(pal),pt.size=1.5,cells= grep("cko", Cells(scj2))) + NoLegend()})
+      output$con<-renderPlot({FeaturePlot(object = scj2,input$goi, pt.size=1.5,cells= grep("con", Cells(scj2))) + NoLegend()})
+      output$cko<-renderPlot({FeaturePlot(object = scj2,input$goi, pt.size=1.5,cells= grep("cko", Cells(scj2))) + NoLegend()})
       fluidRow(
         {box("all",plotOutput("clust"),width=4)},
         {box("Jarid2 control", plotOutput("con"),width=4)},
