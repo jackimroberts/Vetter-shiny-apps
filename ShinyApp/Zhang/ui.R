@@ -6,7 +6,7 @@ shinyUI(dashboardPage(skin="purple",
   #sidebar ####
   dashboardSidebar(
     sidebarMenu(
-      selectInput("dataset", label = "Select a dataset:",selected=4,
+      selectInput("dataset", label = "Select a dataset:",selected=5,
         choices = list(
           "PRC2 cko retina" = 4,
           "Jarid2 single cell" = 5)
