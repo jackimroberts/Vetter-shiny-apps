@@ -2,18 +2,17 @@ library(shiny)
 library(shinydashboard)
 
 shinyUI(dashboardPage(skin="purple",
-  dashboardHeader(title="Data Explorer"),
+  dashboardHeader(title="Sarah's data"),
   #sidebar ####
   dashboardSidebar(
     sidebarMenu(
-      selectInput("dataset", label = "Select a dataset:",selected=4,
+      selectInput("dataset", label = "Select a dataset:",selected=2,
         choices = list(
           "retinal μglia timecourse" = 1,
-          "Itgax lineage" =3,
           "Axl Mertk KO" =4,
           "retinal uglia single cell" = 2) 
         ),
-      textInput("goi", label = "Ensembl gene name:", value = "Sparcl1")
+      textInput("goi", label = "Ensembl gene name:", value = "Itgax")
     )
   ),
   

@@ -39,34 +39,34 @@ shinyServer(function(input, output) {
 
   #generate boxes for gene tab depending on selected dataset ####
   output$geneboxes<-renderUI({
-     if (input$dataset==4){
+     if (input$dataset==4 & (input$goi %in% c(je16$name,ja3$name))){
       output$plot6<-renderPlot({barplot_conditions(je16[,c(7:13)],"e16.5, n=3",
                                           label=c("control","Jarid2 cKO"),
-                                          pallet=c(j2pal[10],j2pal[2]))})
-      output$plot1<-renderPlot({bar_2cond(ja2[,c(5:11)],
+                                          pallet=c(j2pal[10],j2pal[2]),gene=input$goi)})
+      output$plot1<-renderPlot({barplot_conditions(ja2[,c(5:11)],
                                           title="P0, n=2",
                                           label=c("control","Jarid2 cKO"),
-                                          pallet=c(j2pal[11],j2pal[3]))})
-      output$plot2<-renderPlot({bar_2cond(je16[,c(7:13)],"P0, n=3",
+                                          pallet=c(j2pal[11],j2pal[3]),gene=input$goi)})
+      output$plot2<-renderPlot({barplot_conditions(je16[,c(7:13)],"P0, n=3",
                                           label=c("control","Jarid2 cKO"),
-                                          pallet=c(j2pal[11],j2pal[3]))})
-      output$plot3<-renderPlot({bar_2cond(ezh[,c(4,2,13:16)],"e16.5, n=4",
+                                          pallet=c(j2pal[11],j2pal[3]),gene=input$goi)})
+      output$plot3<-renderPlot({barplot_conditions(ezh[,c(4,2,13:16)],"e16.5, n=4",
                                           label=c("control","Ezh2 cKO"),
-                                          pallet=c(j2pal[9],j2pal[1]))})
+                                          pallet=c(j2pal[9],j2pal[1]),gene=input$goi)})
       output$plot7<-renderPlot({barplot_replicates(je16[,c(1:6,13)],"e16.5",
                                         label=c("control","Jarid2 cKO"),
-                                        pallet=c(j2pal[10],j2pal[2]))})
+                                        pallet=c(j2pal[10],j2pal[2]),gene=input$goi)})
       output$plot4<-renderPlot({barplot_replicates(ja3[,c(1:6,13)],"P0",
                                         label=c("control","Jarid2 cKO"),
-                                        pallet=c(j2pal[11],j2pal[3]))})
+                                        pallet=c(j2pal[11],j2pal[3]),gene=input$goi)})
       output$plot5<-renderPlot({barplot_replicates(ezh[,c(2,5:12)],"e16.5",
                                         label=c("control","Ezh2 cKO"),
-                                        pallet=c(j2pal[9],j2pal[1]))})
-      output$plot8<-renderPlot({bar_2cond(ctx[,c(-1)]%>%mutate(cko_sem=0,con_sem=0,con_mean=con,cko_mean=cko,name=gene),
+                                        pallet=c(j2pal[9],j2pal[1]),gene=input$goi)})
+      output$plot8<-renderPlot({barplot_conditions(ctx[,c(-1)]%>%mutate(cko_sem=0,con_sem=0)%>%rename(con_mean=con,cko_mean=cko,name=gene),
                                           "e15.5, cortex",
                                           label=c("control","Jarid2 cKO"),
-                                          pallet=c("#cc2a49","#f99e4c"))}) #cortex data
-      output$plot9<-renderPlot({volcano_gene()}) #cortex data
+                                          pallet=c("#cc2a49","#f99e4c"),gene=input$goi)}) #cortex data
+      output$plot9<-renderPlot({volcano_gene(rename(ctx,name=gene),gene=input$goi)}) #cortex data
       fluidRow(
         {if (input$goi %in% ezh$name)box(plotOutput("plot3"),width=3)},#ezh2
         {if (input$goi %in% je16$name)box(plotOutput("plot6"),width=3)},#j2 e16        
@@ -77,7 +77,6 @@ shinyServer(function(input, output) {
         {if (input$goi %in% ja3$name)box(plotOutput("plot4"),width=4)},
         {if (input$goi %in% ctx$gene)box(plotOutput("plot8"),width=3)},#j2 ctx
         {if (input$goi %in% ctx$gene)box(plotOutput("plot9"),width=3)}
-        
       )
     }
     else if (input$dataset==5 & (input$goi%in%(c(rownames(scj2@assays$SCT@data),names(scj2@meta.data))))){
